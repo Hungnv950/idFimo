@@ -1,0 +1,53 @@
+{
+  "grant_types": [
+    "authorization_code"
+  ],
+  "subject_type": "public",
+  "application_type": "web",
+  "registration_client_uri": "http://127.0.0.1:8080/c2id/clients/d4a46ulzm6lv6",
+  "redirect_uris": [
+    "http://127.0.0.1/idFimo/web/app/index"
+  ],
+  "registration_access_token": "azQA_Uz3ti2rQpVKOuZKsrhlzXyPNcZml0z2Eg9ltZw.Kg",
+  "token_endpoint_auth_method": "client_secret_basic",
+  "client_id": "d4a46ulzm6lv6",
+  "client_secret_expires_at": 0,
+  "client_id_issued_at": 1487663816,
+  "client_secret": "PcGTa2X9BcerbTcTMZp9Y25vfYi3xtun5HOpVI0reLw",
+  "client_name": "mainApp",
+  "contacts": [
+    "admin@admin.com"
+  ],
+  "response_types": [
+    "code"
+  ],
+  "id_token_signed_response_alg": "RS256"
+}
+z3ILgBueEoMXlX_mFAiP5-baCKfoJQQdIltFFCw0zTE
+
+http://localhost/idFimo/web/site/login?response_type=code&scope=openid%2020email&client_id=d4a46ulzm6lv6&redirect_uri=http%3A%2F%2F127.0.0.1%2FidFimo%2Fweb%2Fapp%2Findex?XDEBUG_SESSION_START=abcd
+?response_type=code&scope=email&client_id=d4a46ulzm6lv6&redirect_uri=http%3A%2F%2F127.0.0.1%2FidFimo%2Fweb%2Fapp%2Findex
+phK88GRf8EdlQ0MZ5dxDMUVoBz7IkFD2izhLeDILn_E
+
+"sub_session": {
+"creation_time": 1487932392,
+"sub": "admin",
+"acr": "http://loa.c2id.com/high",
+"max_idle": 10080,
+"data": {
+"name": "Nguyễn A Đờ Min",
+"email": "admin@admin.com"
+},
+"auth_time": 1487932392,
+"max_life": 20160,
+"auth_life": 10080,
+"sid": "RknUDnfoQkh1YI4yLCA6WQ.zjbFVA6DIHCoXmxPxLsUZw"
+},
+
+{
+"mode": "query",
+"type": "response",
+"parameters": {
+"uri": "http://127.0.0.1/idFimo/web/app/index?code=I-Tg1rBaX-8kuaHt487OjQ.Vm0cKGe4FHXnKlsD86yZ5g&state=af0ifjsldkj"
+}
+}
