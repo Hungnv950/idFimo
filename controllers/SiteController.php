@@ -1,6 +1,8 @@
 <?php
 namespace app\controllers;
 
+use app\models\App;
+use app\models\User;
 use Yii;
 use app\models\LoginForm;
 use app\models\PasswordResetRequestForm;
@@ -8,10 +10,12 @@ use app\models\ResetPasswordForm;
 use app\models\SignupForm;
 use app\models\ContactForm;
 use yii\base\InvalidParamException;
+use yii\helpers\Json;
 use yii\web\BadRequestHttpException;
 use yii\web\Controller;
 use yii\filters\VerbFilter;
 use yii\filters\AccessControl;
+use yii\helpers\Url;
 
 use app\controllers\AuthController;
 
@@ -50,55 +54,73 @@ class SiteController extends Controller {
         ];
     }
     public function actionIndex() {
-        return $this->render('index');
+
+        $app = App::find()->asArray()->all();
+
+        return $this->render('index',[
+            'app' => $app
+        ]);
     }
 
     /*
      * Login with Oauth 2.0
      * */
     public function actionAuthLogin() {
+
+        if (Yii::$app->user->isGuest) {
+            $model = new LoginForm();
+            if ($model->load(Yii::$app->request->post()) && $model->login()) {
+                return $this->goBack();
+            } else {
+                $this->layout= 'main';
+                return $this->render('login', [
+                    'model' => $model,
+                ]);
+            }
+        }
+
         $auth = new AuthController();
 
+        /*
+         * Get parameter in url
+         * */
         $request = Yii::$app->request;
         $responseType = $request->get('response_type');
-        $scope = urldecode("openid " . $request->get('scope'));
+        $scope = $request->get('scope');
         $clientId = $request->get('client_id');
-        $redirectUri = urldecode($request->get('redirect_uri'));
+        $redirectUri = $request->get('redirect_uri');
 
-        $auth->actionAuth(Yii::$app->params['authorizationSession'],$responseType, $scope, $clientId,$redirectUri );
-//        var_dump($auth);die;
-        if (!\Yii::$app->user->isGuest) {
-            return $this->goHome();
-        }
-        $model = new LoginForm();
-        if ($model->load(Yii::$app->request->post()) && $model->login()) {
-//            var_dump($model);die;
-            return $this->goBack();
-        } else {
-            return $this->render('login', [
-                'model' => $model,
-            ]);
-        }
+        /*
+         * create user_sid
+         * */
+        $auth->actionAuth(Yii::$app->params['url_authorizationSession'],$responseType, $scope, $clientId,$redirectUri );
+        $auth->uri = $redirectUri;
+
+        /*
+         * sent clame and receive redirect_url, have code
+         * */
+        $model = Yii::$app->getUser()->identity['attributes'];
+        $username = $model['username'];
+        $email = $model['email'];
+        $data = Json::encode([
+            'name'  => $username,
+            'email' => $email
+        ]);
+        $auth->getSubID(Yii::$app->params['url_authorizationSession'].'/'.$auth->sid,$username,$data);
+
+        $scope = array("openid", "email");
+        $clamps = array( "email", "email_verified" );
+        $auth->getUri(Yii::$app->params['url_authorizationSession'].'/'.$auth->sid, $scope, $clamps);
+
+        return Yii::$app->getResponse()->redirect($auth->uriRedirect)   ;
     }
 
     public function actionLogin() {
-
-        $auth = new AuthController();
-
-        $request = Yii::$app->request;
-        $responseType = $request->get('response_type');
-        $scope = urldecode("openid " . $request->get('scope'));
-        $clientId = $request->get('client_id');
-        $redirectUri = urldecode($request->get('redirect_uri'));
-
-        $auth->actionAuth(Yii::$app->params['authorizationSession'],$responseType, $scope, $clientId,$redirectUri );
-//        var_dump($auth);die;
         if (!\Yii::$app->user->isGuest) {
             return $this->goHome();
         }
         $model = new LoginForm();
         if ($model->load(Yii::$app->request->post()) && $model->login()) {
-//            var_dump($model);die;
             return $this->goBack();
         } else {
             return $this->render('login', [
@@ -170,5 +192,28 @@ class SiteController extends Controller {
         return $this->render('resetPassword', [
             'model' => $model,
         ]);
+    }
+
+    public function actionConsent() {
+        return $this->render('//app/consent');
+    }
+
+
+    //Delete All App
+    public function actionDemo() {
+
+        $auth = new AuthController();
+        $apps = $auth->getAllApp();
+
+        foreach ($apps as $data=> $value) {
+            $apps = $auth->deleteApp(Yii::$app->params['url_clientRegistration'], $value->client_id);
+            echo ($value->client_id)."<br>";
+        }
+    }
+
+    //Delete one app
+    public function actionDemo1($id) {
+        $auth = new AuthController();
+        $apps = $auth->deleteApp(Yii::$app->params['url_clientRegistration'], $id);
     }
 }

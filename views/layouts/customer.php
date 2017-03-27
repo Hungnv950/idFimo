@@ -37,7 +37,7 @@ AppAsset::register($this);
                 ['label' => 'About', 'url' => ['/site/about']],
                 ['label' => 'Contact', 'url' => ['/site/contact']],
                 Yii::$app->user->isGuest ? (
-                ['label' => 'Login', 'url' => ['/site/login?response_type=code&scope=email&client_id=d4a46ulzm6lv6&redirect_uri=http%3A%2F%2F127.0.0.1%2FidFimo%2Fweb%2Fapp%2Findex']]
+                ['label' => 'Login', 'url' => ['/site/login']]
                 ) : (
                     '<li>'
                     . Html::beginForm(['/site/logout'], 'post')

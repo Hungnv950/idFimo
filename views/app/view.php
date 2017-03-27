@@ -12,8 +12,6 @@ $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="app-view">
 
-    <h1><?= Html::encode($this->title) ?></h1>
-
     <p>
         <?= Html::a(Yii::t('app', 'Update'), ['update', 'id' => $model->id], ['class' => 'btn btn-primary']) ?>
         <?= Html::a(Yii::t('app', 'Delete'), ['delete', 'id' => $model->id], [
@@ -29,10 +27,20 @@ $this->params['breadcrumbs'][] = $this->title;
         'model' => $model,
         'attributes' => [
             'id',
-            'clientID',
-            'clientSecret',
             'name',
             'description',
+            'client_id',
+            'client_secret',
+            'grant_types',
+            'subject_type',
+            'application_type',
+            'registration_client_uri',
+            'redirect_uris',
+            'registration_access_token',
+            'token_endpoint_auth_method',
+            'client_secret_expires_at',
+            'client_id_issued_at',
+            'id_token_signed_response_alg',
             'created_at',
         ],
     ]) ?>

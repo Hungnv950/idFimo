@@ -18,9 +18,9 @@
         "yiisoft/yii2": "~2.0.5",
         "yiisoft/yii2-bootstrap": "~2.0.0",
         "yiisoft/yii2-swiftmailer": "~2.0.0",
-        "mdmsoft/yii2-admin": "~2.0", // Yii2 RBAC
-        "dmstr/yii2-adminlte-asset": "2.0", // Yii2 admin layout
-        "yiisoft/yii2-httpclient": "~2.0.0" // Yii2 curl excel
+        "mdmsoft/yii2-admin": "~2.0",
+        "dmstr/yii2-adminlte-asset": "2.0",
+        "yiisoft/yii2-httpclient": "~2.0.0"
     },
     "require-dev": {
         "yiisoft/yii2-debug": "~2.0.0",

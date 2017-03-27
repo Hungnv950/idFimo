@@ -5,6 +5,7 @@ namespace app\controllers;
 use Yii;
 use app\models\App;
 use app\models\AppSearch;
+use yii\httpclient\Client;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -35,17 +36,13 @@ class AppController extends Controller
      */
     public function actionIndex()
     {
+        $searchModel = new AppSearch();
+        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
-        if (isset($_GET['code'])) {
-            $code = $_GET['code'];
-        } else {
-            $code = '';
-        }
-        return $this->render('index',
-            [
-                'code' => $code
-            ]
-        );
+        return $this->render('index', [
+            'searchModel' => $searchModel,
+            'dataProvider' => $dataProvider,
+        ]);
     }
 
     /**
@@ -69,8 +66,32 @@ class AppController extends Controller
     {
         $model = new App();
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
+        if ($model->load(Yii::$app->request->post())) {
+
+            $auth = new AuthController();
+
+            $redirect_uris = array($model->redirect_uris);
+            $name = $model->name;
+            $content = $auth->createApp(Yii::$app->params['url_clientRegistration'],$redirect_uris, $name);
+
+            $model->client_id = (string)$content->client_id;
+            $model->client_secret = (string) $content->client_secret;
+            $model->client_id_issued_at = (integer) $content->client_id_issued_at;
+
+            $model->grant_types = (string) $content->grant_types[0];
+            $model->application_type = (string) $content->application_type;
+            $model->subject_type = (string) $content->subject_type;
+            $model->registration_client_uri = (string) $content->registration_client_uri;
+            $model->registration_access_token = (string) $content->registration_access_token;
+            $model->token_endpoint_auth_method = (string) $content->token_endpoint_auth_method;
+            $model->client_secret_expires_at = (integer)$content->client_id_issued_at;
+            $model->id_token_signed_response_alg = (string) $content->id_token_signed_response_alg;
+            $model->created_at = time();
+            Yii::$app->session->addFlash('success', 'Thêm thành công');
+            if ($model->save(false)) {
+                Yii::$app->session->addFlash('success', 'Thêm thành công');
+                return $this->redirect(['view', 'id' => $model->id]);
+            }
         } else {
             return $this->render('create', [
                 'model' => $model,
@@ -89,6 +110,7 @@ class AppController extends Controller
         $model = $this->findModel($id);
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
+            Yii::$app->session->addFlash('primary', 'Cập nhật thành công');
             return $this->redirect(['view', 'id' => $model->id]);
         } else {
             return $this->render('update', [
@@ -105,8 +127,12 @@ class AppController extends Controller
      */
     public function actionDelete($id)
     {
-        $this->findModel($id)->delete();
+        $client_id = $this->findModel($id)->client_id;
+        $auth = new AuthController();
+        $auth->deleteApp(Yii::$app->params['url_clientRegistration'], $client_id);
 
+        $this->findModel($id)->delete();
+        Yii::$app->session->addFlash('success', 'Xóa thành công');
         return $this->redirect(['index']);
     }
 
@@ -125,4 +151,9 @@ class AppController extends Controller
             throw new NotFoundHttpException('The requested page does not exist.');
         }
     }
+
+    public function actionMain() {
+        return $this->render('main');
+    }
+
 }

@@ -18,8 +18,8 @@ class AppSearch extends App
     public function rules()
     {
         return [
-            [['id', 'created_at'], 'integer'],
-            [['clientID', 'clientSecret', 'name', 'description'], 'safe'],
+            [['id', 'client_secret_expires_at', 'client_id_issued_at', 'created_at'], 'integer'],
+            [['name', 'description', 'client_id', 'client_secret', 'grant_types', 'subject_type', 'application_type', 'registration_client_uri', 'redirect_uris', 'registration_access_token', 'token_endpoint_auth_method', 'id_token_signed_response_alg'], 'safe'],
         ];
     }
 
@@ -60,13 +60,23 @@ class AppSearch extends App
         // grid filtering conditions
         $query->andFilterWhere([
             'id' => $this->id,
+            'client_secret_expires_at' => $this->client_secret_expires_at,
+            'client_id_issued_at' => $this->client_id_issued_at,
             'created_at' => $this->created_at,
         ]);
 
-        $query->andFilterWhere(['like', 'clientID', $this->clientID])
-            ->andFilterWhere(['like', 'clientSecret', $this->clientSecret])
-            ->andFilterWhere(['like', 'name', $this->name])
-            ->andFilterWhere(['like', 'description', $this->description]);
+        $query->andFilterWhere(['like', 'name', $this->name])
+            ->andFilterWhere(['like', 'description', $this->description])
+            ->andFilterWhere(['like', 'client_id', $this->client_id])
+            ->andFilterWhere(['like', 'client_secret', $this->client_secret])
+            ->andFilterWhere(['like', 'grant_types', $this->grant_types])
+            ->andFilterWhere(['like', 'subject_type', $this->subject_type])
+            ->andFilterWhere(['like', 'application_type', $this->application_type])
+            ->andFilterWhere(['like', 'registration_client_uri', $this->registration_client_uri])
+            ->andFilterWhere(['like', 'redirect_uris', $this->redirect_uris])
+            ->andFilterWhere(['like', 'registration_access_token', $this->registration_access_token])
+            ->andFilterWhere(['like', 'token_endpoint_auth_method', $this->token_endpoint_auth_method])
+            ->andFilterWhere(['like', 'id_token_signed_response_alg', $this->id_token_signed_response_alg]);
 
         return $dataProvider;
     }
