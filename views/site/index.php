@@ -24,7 +24,7 @@ $this->title = 'Fimo';
                             <?= Html::a( 'Go to '.$value['name'],
                                 ['/site/auth-login',
                                     'response_type'=>'code',
-                                    'scope'=>'openid email',
+                                    'scope'=>'openid email profile',
                                     'client_id'=> $value['client_id'],
                                     'redirect_uri'=> $value['redirect_uris']
                                 ],

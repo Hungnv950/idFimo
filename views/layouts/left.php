@@ -12,7 +12,7 @@ use yii\bootstrap\Nav;
                 <!-- Sidebar user panel -->
                 <div class="user-panel">
                     <div class="pull-left image">
-                        <img src="/<?php echo Yii::$app->params['img'].'user.png'?>" class="img-circle" alt="User Image"/>
+                        <img src="<?php echo Yii::getAlias('@web').'/img/user.png'?>" class="img-circle" alt="User Image"/>
                     </div>
                     <div class="pull-left info">
                         <p><?php echo $username?></p>
@@ -48,7 +48,7 @@ use yii\bootstrap\Nav;
                 <!-- Sidebar user panel -->
                 <div class="user-panel">
                     <div class="pull-left image">
-                        <img src="/<?php echo Yii::$app->params['img'].'user.png'?>" class="img-circle" alt="User Image"/>
+                        <img src="<?php echo Yii::getAlias('@web').'/img/user.png'?>"" class="img-circle" alt="User Image"/>
                     </div>
                     <div class="pull-left info">
                         <p><?php echo $username?></p>
@@ -66,7 +66,7 @@ use yii\bootstrap\Nav;
                             '<li class="header">Menu Dashboard</li>',
                             [
                                 'label' => '<span class="glyphicon glyphicon-user"></span> User', 'url' => ['/user'],
-                                'visible' => Yii::$app->user->can('userManagerment'),
+                                'visible' => Yii::$app->user->can('userManagement'),
                             ],
                             [
                                 'label' => '<span class="glyphicon glyphicon-pencil"></span> Assignment', 'url' => ['/admin/assignment'],

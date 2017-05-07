@@ -25,11 +25,11 @@ class CheckIfLoggedIn extends Behavior {
         if (Yii::$app->controller->action->id == 'login') {
             Yii::$app->layout = 'main';
         }
-        else if (Yii::$app->user->can('userManagerment')) {
-            Yii::$app->layout = 'main';
+        else if (Yii::$app->user->can('userManagement')) {
+            Yii::$app->layout = 'main.php';
         } else {
             //        If user dont have permission to Admin, render to customer
-            Yii::$app->layout = 'customer';
+            Yii::$app->layout = 'customer.php';
         }
     }
 }

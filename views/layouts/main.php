@@ -49,6 +49,7 @@ if (Yii::$app->controller->action->id === 'login') {
                 'directoryAsset' => $directoryAsset,
                 'username' => $username,
                 'dateCreated' => $dateCreated,
+                'visible' =>Yii::$app->user->isGuest
             ]
         ) ?>
 
@@ -59,6 +60,7 @@ if (Yii::$app->controller->action->id === 'login') {
                 [
                     'directoryAsset' => $directoryAsset,
                     'username' => $username,
+                    'visible' =>Yii::$app->user->isGuest
                 ]
             )
             ?>

@@ -61,7 +61,7 @@ $config = [
             'defaultTimeZone' => 'Asia/Hong_Kong', // time zone
         ],
         'httpclient' => [
-            'class' =>'understeam\httpclient\Client',
+            'class' => 'understeam\httpclient\Client',
             'detectMimeType' => true, // automatically transform request to data according to response Content-Type header
             'requestOptions' => [
                 // see guzzle request options documentation
@@ -86,9 +86,14 @@ $config = [
             // otherwise you may not even take a first step.
         ]
     ],
+//    'on beforeRequest' => function ($event) {
+//        Yii::$app->layout = Yii::$app->user->isGuest ?
+//            '@app/views/layouts/customer.php' :      // or just use 'GuestUser' and
+//            '@app/views/layouts/main.php';  // 'RegisteredUser' since the path
+//    },
 
     'as beforeAction' => [
-      'class' => 'app\components\CheckIfLoggedIn',
+        'class' => 'app\components\CheckIfLoggedIn',
     ],
 
     'params' => $params,

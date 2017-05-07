@@ -28,20 +28,12 @@ class AuthController
         'Content-Type' => 'application/json',
     ];
 
-
-//    public function setAccessToken($accessToken) {
-//        $this->$accessToken = $accessToken;
-//    }
-//
-//    public function getAccessToken() {
-//        return $this->accessToken;
-//    }
-
     /*
      * Send query
      * Get session id
      * */
-    public function actionAuth($url, $responseType, $scope, $clientId, $redirectUri) {
+    public function actionAuth($url, $responseType, $scope, $clientId, $redirectUri)
+    {
 
         $client = new Client();
         $body = Json::encode([
@@ -55,7 +47,7 @@ class AuthController
 
         $response = $client->post($url, $body, AuthController::$header)->send();
         if ($response->isOk) {
-            if (!empty($response->data['sid'])){
+            if (!empty($response->data['sid'])) {
                 $this->sid = $response->data['sid'];
             }
         }
@@ -67,18 +59,19 @@ class AuthController
      * get user_session id
      *
      * */
-    public function getSubID($url,$sub, $data) {
+    public function getSubID($url, $sub, $data)
+    {
 
         $client = new Client();
         $body = Json::encode([
             'sub' => $sub,
             'max_idle' => Yii::$app->params['max_idle'],
+            'data' => $data,
         ]);
-        $body = rtrim($body, '}').', "data":'.$data.'}';
 
         $respone = $client->put($url, $body, AuthController::$header)->send();
-        $result = json_decode($respone->content,true);
-        if (!empty($result['sub_session'])){
+        $result = json_decode($respone->content, true);
+        if (!empty($result['sub_session'])) {
             $this->uSid = $result['sub_session']['sid'];
         } else {
             $this->uSid = $result['sub_sid'];
@@ -92,14 +85,18 @@ class AuthController
      * Send Consent
      * and get Uri, accesstoken
      * */
-    public function getUri($url, $scope, $clamps) {
+    public function getUri($url, $scope, $clamps)
+    {
 
         $client = new Client();
+
         $body = Json::encode([
-            'scope'  => $scope,
-            'claims' => $clamps
+            'scope' => $scope,
+            'claims' => $clamps,
+//            'profile' => 'Hungnv950'
         ]);
-        $response = $client->put($url,$body, AuthController::$header)->send();
+
+        $response = $client->put($url, $body, AuthController::$header)->send();
         if ($response->isOk) {
             $this->uriRedirect = json_decode($response->content)->parameters->uri;
         }
@@ -108,7 +105,8 @@ class AuthController
     /*
      * Create new App with Server
      * */
-    public function createApp ($url, $redirect_uris, $name) {
+    public function createApp($url, $redirect_uris, $name)
+    {
 
         $client = new Client();
         $body = Json::encode([
@@ -116,7 +114,7 @@ class AuthController
             'redirect_uris' => $redirect_uris
         ]);
 
-        $response = $client->post($url,$body, AuthController::$header)->send();
+        $response = $client->post($url, $body, AuthController::$header)->send();
         if ($response->isOk) {
             return json_decode($response->content);
         }
@@ -128,15 +126,16 @@ class AuthController
     /*
      * Reset, delete all application
      * */
-    public function deleteApp($url,$id){
+    public function deleteApp($url, $id)
+    {
 
         $client = new Client();
         $body = Json::encode([
             'redirect_uris' => $id
         ]);
 
-        $url = $url.'/'.$id;
-        $client->delete($url,$body, AuthController::$header)->send();
+        $url = $url . '/' . $id;
+        $client->delete($url, $body, AuthController::$header)->send();
 
         return false;
     }
@@ -144,11 +143,12 @@ class AuthController
     /*
      * Get all application had in server
      * */
-    public function getAllApp(){
+    public function getAllApp()
+    {
 
         $client = new Client();
 
-        $app = $client->get(Yii::$app->params['clientRegistration'], null, AuthController::$header)->send();
+        $app = $client->get(Yii::$app->params['url_clientRegistration'], null, AuthController::$header)->send();
 
         return json_decode($app->content);
     }
@@ -157,36 +157,38 @@ class AuthController
     /*
      * Funton for Client App Realy Party
      * */
-    public function getAccessToken($url, $code, $key, $returnUrl){
+    public function getAccessToken($url, $code, $key, $returnUrl)
+    {
         $header = [
-            'Authorization' => 'Basic '.$key,
-            'Content-Type'=> 'application/x-www-form-urlencoded'
+            'Authorization' => 'Basic ' . $key,
+            'Content-Type' => 'application/x-www-form-urlencoded'
         ];
         $client = new Client();
-         $body =   http_build_query([
-                'grant_type' => 'authorization_code',
-                'code' => $code,
-                'redirect_uri' => $returnUrl
-            ]);
-        $response = $client->post($url,$body, $header)->send();
+        $body = http_build_query([
+            'grant_type' => 'authorization_code',
+            'code' => $code,
+            'redirect_uri' => $returnUrl
+        ]);
+        $response = $client->post($url, $body, $header)->send();
         if ($response->isOk) {
-            $result = json_decode($response->content,true);
-           $this->accessToken= $result['access_token'];
-            $this->idToken= $result['id_token'];
-            $this->tokenExpiresIn= $result['expires_in'];
+            $result = json_decode($response->content, true);
+            $this->accessToken = $result['access_token'];
+            $this->idToken = $result['id_token'];
+            $this->tokenExpiresIn = $result['expires_in'];
         }
     }
 
-    public function getUserInfo($url, $accessToken) {
+    public function getUserInfo($url, $accessToken)
+    {
         $header = array(
             'Authorization' => 'Bearer ' . $accessToken,
             'Content-Type' => 'application/json'
         );
 
         $client = new Client();
-        $response = $client->get($url,null, $header)->send();
+        $response = $client->get($url, null, $header)->send();
         if ($response->isOk) {
-            $result = json_decode($response->content,true);
+            $result = json_decode($response->content, true);
             return $result;
         }
         return false;

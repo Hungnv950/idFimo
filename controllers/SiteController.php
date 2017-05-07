@@ -10,6 +10,8 @@ use app\models\ResetPasswordForm;
 use app\models\SignupForm;
 use app\models\ContactForm;
 use yii\base\InvalidParamException;
+use yii\base\Response;
+use yii\helpers\ArrayHelper;
 use yii\helpers\Json;
 use yii\web\BadRequestHttpException;
 use yii\web\Controller;
@@ -19,29 +21,31 @@ use yii\helpers\Url;
 
 use app\controllers\AuthController;
 
+
 class SiteController extends Controller {
 
     public function behaviors() {
         return [
-            'access' => [
-                'class' => AccessControl::className(),
-                'only' => ['logout'],
-                'rules' => [
-                    [
-                        'actions' => ['logout'],
-                        'allow' => true,
-                        'roles' => ['@'],
-                    ],
-                ],
-            ],
-            'verbs' => [
-                'class' => VerbFilter::className(),
-                'actions' => [
-                    'logout' => ['post'],
-                ],
-            ],
+//            'access' => [
+//                'class' => AccessControl::className(),
+//                'only' => ['logout'],
+//                'rules' => [
+//                    [
+//                        'actions' => ['logout'],
+//                        'allow' => true,
+//                        'roles' => ['@'],
+//                    ],
+//                ],
+//            ],
+//            'verbs' => [
+//                'class' => VerbFilter::className(),
+//                'actions' => [
+//                    'logout' => ['post'],
+//                ],
+//            ],
         ];
     }
+
     public function actions() {
         return [
             'error' => [
@@ -73,7 +77,7 @@ class SiteController extends Controller {
                 return $this->goBack();
             } else {
                 $this->layout= 'main';
-                return $this->render('login', [
+                return $this->render('/site/login', [
                     'model' => $model,
                 ]);
             }
@@ -90,10 +94,11 @@ class SiteController extends Controller {
         $clientId = $request->get('client_id');
         $redirectUri = $request->get('redirect_uri');
 
+        $state = $request->get('state');
         /*
          * create user_sid
          * */
-        $auth->actionAuth(Yii::$app->params['url_authorizationSession'],$responseType, $scope, $clientId,$redirectUri );
+        $auth->actionAuth(Yii::$app->params['url_authorizationSession'], $responseType, $scope, $clientId, $redirectUri );
         $auth->uri = $redirectUri;
 
         /*
@@ -102,18 +107,48 @@ class SiteController extends Controller {
         $model = Yii::$app->getUser()->identity['attributes'];
         $username = $model['username'];
         $email = $model['email'];
-        $data = Json::encode([
+        $data = [
             'name'  => $username,
             'email' => $email
-        ]);
-        $auth->getSubID(Yii::$app->params['url_authorizationSession'].'/'.$auth->sid,$username,$data);
+        ];
 
-        $scope = array("openid", "email");
+        $auth->getSubID(Yii::$app->params['url_authorizationSession'].'/'.$auth->sid, $username,$data);
+
+        $scope = array("openid", "email", "profile");
         $clamps = array( "email", "email_verified" );
-        $auth->getUri(Yii::$app->params['url_authorizationSession'].'/'.$auth->sid, $scope, $clamps);
 
-        return Yii::$app->getResponse()->redirect($auth->uriRedirect)   ;
+
+        $auth->getUri(Yii::$app->params['url_authorizationSession'].'/'.$auth->sid, $scope, $clamps);
+        return Yii::$app->getResponse()->redirect($auth->uriRedirect.'&state='.$state)   ;
     }
+
+    public function actionGetUser() {
+        $request = Yii::$app->request;
+        $accessToken = $request->get('accessToken');
+        echo $accessToken;
+    }
+
+
+    function actionUserInfor()
+    {
+        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+
+        $username = Yii::$app->request->get('username');
+
+        $out = ['results' => ['id' => '', 'text' => '']];
+
+        if (!is_null($username)) {
+            $user = User::find()->where(['=','username', $username])->asArray()->all();
+        }
+        else {
+            $user = User::find()->asArray()->all();
+        }
+//        $out['results'] = ArrayHelper::index($user, 'username');
+
+        return $user;
+    }
+
+
 
     public function actionLogin() {
         if (!\Yii::$app->user->isGuest) {
@@ -128,6 +163,7 @@ class SiteController extends Controller {
             ]);
         }
     }
+
     public function actionLogout() {
         Yii::$app->user->logout();
         return $this->goHome();
